@@ -23,7 +23,7 @@ The model is divided into one platform (represented by gray patches) and one tra
 
 The train contour (forbidden patches for the passengers) is designed with black patches and doors with dark gray patches. Inside the train, the light green patches represent the train and dark green represents the seats (see following figure). The distribution of the seats in the train can either be in lines along the edges of the train or in sets of double seats to simulate the possible configuration of the trains in the Tokyo subway lines. Use the **`train-seats`** chooser to set the configuration of the train.
 
-![Legend of the train configuration](file:figures/legend_train.png)
+![Legend of the train configuration](./figures/legend_train.png)
 
 ### The passengers
 
@@ -37,7 +37,7 @@ The boarding passengers are located on the platform and assigned with either a b
  - **`mixed`** : random distribution of passengers with good or bad behaviour. Half of passengers will have good behaviour and the other half bad behaviour.
  - **`bad`** : no passengers wait for alighting passengers to get off the train before boarding. They start moving as soon as the simulation starts.
 
-![Legend of the passengers](file:figures/legend_passengers.png)
+![Legend of the passengers](./figures/legend_passengers.png)
 
 The location of the boarding passengers is affected by the **`boarding-in-lines`** switch which could either be 0.0, 0.5 or 1.0 :
 
@@ -51,7 +51,7 @@ The **`show-pen`** switch ables to draw the path of each passenger during the ru
 
 Each patch of the model is assigned with an elevation parameter which will be used by the passengers to choose the best direction to go (see figure). Alighting passengers follow a path with decreasing elevation, while boarding passengers follow a path with increasing elevation.
 
-![Legend of the elevation](file:figures/legend_elevation.png)
+![Legend of the elevation](./figures/legend_elevation.png)
 
 The elevation map can be displayed on the monitor (and during the simulation) using the **`show-elevation`** switch.
 
@@ -75,7 +75,7 @@ For each run, the number of boarding passengers is half the total number of pass
 
 Results are presented in the following figures.
 
-![Impact of varying the parameters on the boarding time](file:figures/parameters_explorations_boarding.png)
+![Impact of varying the parameters on the boarding time](./figures/parameters_explorations_boarding.png)
 
 First of all, we notice that having bad behaviour (_i.e._ boarding the train as soon as the simulation starts) helps to have a short train dwell time. Waiting for an empty train does not seem to improve the dwell time.
 
@@ -107,7 +107,7 @@ To increase the complexity of the simulation, some passengers could be assigned 
 
 One small problem remains is to find the correct time to stop the simulation. When using a large number of passengers, a few boarding passengers might get stuck very close to the door patches. As the passengers are moving slowly away from the doors because of the crowd, no neighbor patch is available, and the passenger assumes that its displacement is finished and blocks the way to other passengers. As passengers continue to move in front of it and release some free space, these passengers are not moving anymore and continue to block the way to others. (see the results of such an event in the following figure, red circle).
 
-![entryway blocked by one passenger](file:figures/boarding_problem.png) 
+![entryway blocked by one passenger](./figures/boarding_problem.png) 
 
 
 ## NETLOGO FEATURES
