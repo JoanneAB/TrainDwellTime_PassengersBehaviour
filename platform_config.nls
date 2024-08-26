@@ -1,0 +1,60 @@
+; --------------------------------------------------------------------------------------------------------
+to setup-platform-globals
+  set platform-color 9
+end
+
+; --------------------------------------------------------------------------------------------------------
+to create-platform  
+  ask patches 
+    [ 
+    set waiting-line-distribution -1 ; outside of the platform, no boarding passengers
+    if pycor >= 0 and pycor < train-ymin
+      [
+      set pcolor platform-color
+        
+      ; -----------------------------------------------------------------------------
+      ; Create the elevation to help passengers navigate:
+      set elevation ( pycor / train-ymax )
+
+      ; ----------------------
+      ; Change the elevation in the center between doors so people do not get stuck by train doors :
+      if ( pxcor >= 0 and pxcor <  5 ) [ set elevation elevation - 0.01 * (  6 - pxcor ) ]
+      if ( pxcor > 9  and pxcor < 12 ) [ set elevation elevation - 0.01 * ( 13 - pxcor ) ]
+      if ( pxcor > 16 and pxcor < 19 ) [ set elevation elevation - 0.01 * ( 20 - pxcor ) ]
+      if ( pxcor > 23 and pxcor < 26 ) [ set elevation elevation - 0.01 * ( 27 - pxcor ) ]
+       
+      if ( pxcor > 7  and pxcor < 10 ) [ set elevation elevation + 0.01 * ( 6 - pxcor ) ]
+      if ( pxcor > 14 and pxcor < 17 ) [ set elevation elevation + 0.01 * ( 13 - pxcor ) ]
+      if ( pxcor > 21 and pxcor < 24 ) [ set elevation elevation + 0.01 * ( 20 - pxcor ) ]
+      if ( pxcor > 28 and pxcor < 34 ) [ set elevation elevation + 0.01 * ( 27 - pxcor ) ]
+      
+      ; Display the elevation using the GUI switch:
+      if show-elevation [ set pcolor max list ( 10 * elevation ) 0 ]
+
+      ; -------------------------------------------------------------------
+      ; Create the waiting distance probability for passengers :         
+      set waiting-distance-distribution pycor / train-ymin
+    
+      ; -------------------------------------------------------------------
+      ; Create the waiting zone for boarding passengers:
+      set waiting-line-distribution 0 ; reference value for passenger scatter = random
+      ; Lower probability of being close to the lines:
+      if ( pxcor >=  4 and pxcor <=  8 ) or ( pxcor >= 11 and pxcor <= 15 ) or
+         ( pxcor >= 18 and pxcor <= 22 ) or ( pxcor >= 25 and pxcor <= 29 )
+        [
+        set waiting-line-distribution 0.5 ; medium probability of being close to the lines
+        ]
+
+      ; High probability of being on two lines :
+      if pxcor =  5 or pxcor =  7 or pxcor = 12 or pxcor = 14 or
+         pxcor = 19 or pxcor = 21 or pxcor = 26 or pxcor = 28 
+;       if ( pxcor >=  5 and pxcor <=  7 ) or ( pxcor >= 12 and pxcor <= 14 ) or
+;          ( pxcor >= 19 and pxcor <= 21 ) or ( pxcor >= 26 and pxcor <= 28 )
+        [
+        set waiting-line-distribution 1.0 ; all passengers waits in lines
+        ]
+      ]
+    ]
+end
+
+

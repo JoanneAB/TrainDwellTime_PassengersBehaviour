@@ -1,0 +1,33 @@
+; -----------------------------------------------------------------------------
+
+globals 
+  [
+  ; counters :
+  counter-boarding-inside    ; necessary time for the boarding passengers to board (in ticks)
+  counter-boarding-finished  ; necessary time for the boarding passengers to completetly board (in ticks)
+  counter-alighting-outside  ; necessary time for the alighting passengers to alight (in ticks)
+  counter-alighting-finished ; necessary time for the alighting passengers to alight and finish (in ticks)
+  
+  i-run ; iteration on the number of runs
+  filename ; filename for the outputs
+  
+  ; TRAIN :
+  train-color
+  train-door-color
+  train-edge-color
+  train-seat-color
+
+  train-xmin
+  train-xmax
+  train-ymin
+  train-ymax
+  
+  ; PLATFORM
+  platform-color
+  
+  ; PASSENGERS
+  number-alighting
+  passenger-alighting-color
+  passenger-boarding-color-good
+  passenger-boarding-color-bad
+  ]

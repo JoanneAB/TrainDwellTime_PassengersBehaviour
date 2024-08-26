@@ -1,0 +1,113 @@
+; -----------------------------------------------------------------------------
+to setup-train-globals
+  set train-color      57 ; dark green
+  set train-edge-color 0  ; black
+  set train-door-color 5  ; dark gray
+  set train-seat-color 55 ; darker green
+ 
+  set train-xmin 0
+  set train-xmax max-pxcor
+  set train-ymin max-pycor - 9 + 1
+  set train-ymax max-pycor
+end
+  
+; -----------------------------------------------------------------------------
+to create-train
+  ask patches
+    [
+    set train? False ; by default patches are not the train
+      
+    if pxcor > train-xmin and pxcor < train-xmax and pycor >= train-ymin and pycor <= train-ymax
+      [
+      set pcolor train-color
+        
+      ; -----------------------------------------------------------------------------
+      ; Create the elevation to help passengers navigate:
+      set elevation ( pycor / train-ymax )
+      ]
+
+    ; -----------------------------------------------------------------------------      
+    ; Create the train boundaries:
+    if pxcor = train-xmin or pxcor >= train-xmax and pycor >= train-ymin [ set pcolor train-edge-color ]
+    if pycor = train-ymin or pycor >= train-ymax and pxcor >= train-xmin [ set pcolor train-edge-color ]
+
+    ; -----------------------------------------------------------------------------      
+    ; Create the doors:
+    if pycor = train-ymin or pycor = train-ymax and pxcor >=  5 and pxcor <=  7 [ set pcolor train-door-color ]
+    if pycor = train-ymin or pycor = train-ymax and pxcor >= 12 and pxcor <= 14 [ set pcolor train-door-color ]
+    if pycor = train-ymin or pycor = train-ymax and pxcor >= 19 and pxcor <= 21 [ set pcolor train-door-color ]
+    if pycor = train-ymin or pycor = train-ymax and pxcor >= 26 and pxcor <= 28 [ set pcolor train-door-color ]
+      
+    ; -----------------------------------------------------------------------------
+    ; the seats are two long lines along the window :
+    if train-seats = "lines" 
+      [
+      if pycor = train-ymin + 1 or pycor = train-ymax - 1 and pxcor >  0 and pxcor <  5 [ set pcolor train-seat-color ]
+      if pycor = train-ymin + 1 or pycor = train-ymax - 1 and pxcor >  7 and pxcor < 12 [ set pcolor train-seat-color ]
+      if pycor = train-ymin + 1 or pycor = train-ymax - 1 and pxcor > 14 and pxcor < 19 [ set pcolor train-seat-color ]
+      if pycor = train-ymin + 1 or pycor = train-ymax - 1 and pxcor > 21 and pxcor < 26 [ set pcolor train-seat-color ]
+      if pycor = train-ymin + 1 or pycor = train-ymax - 1 and pxcor > 28 and pxcor < 33 [ set pcolor train-seat-color ]
+       
+      ]
+      
+    ; -----------------------------------------------------------------------------
+    ; the seats are series of double seats :
+    if train-seats = "doubles" 
+      [
+      ; If someone is seated, noone can stand in front.
+      ; Back of seats in black, no one can seat.
+      if pycor >= train-ymin + 1 and pycor <= train-ymin + 2 and 
+        ( pxcor = 2 or pxcor = 4 or pxcor = 9 or pxcor = 11 or pxcor = 16 or pxcor = 18 or pxcor = 23 or pxcor = 25 or pxcor = 30 or pxcor = 32 )
+        [ set pcolor train-edge-color ]        
+        
+      if pycor <= train-ymax - 1 and pycor >= train-ymax - 2 and 
+        ( pxcor = 2 or pxcor = 4 or pxcor = 9 or pxcor = 11 or pxcor = 16 or pxcor = 18 or pxcor = 23 or pxcor = 25 or pxcor = 30 or pxcor = 32 )
+        [ set pcolor train-edge-color ]        
+        
+      ; Seats in dark green:        
+      if pycor >= train-ymin + 1 and pycor <= train-ymin + 2 and 
+        ( pxcor = 1 or pxcor = 3 or pxcor = 8 or pxcor = 10 or pxcor = 15 or pxcor = 17 or pxcor = 22 or pxcor = 24 or pxcor = 29 or pxcor = 31 )
+        [ 
+        set pcolor train-seat-color 
+        
+        ; Change elevation in the bottom seats to go back to center before exiting the train :
+        if pycor = train-ymin + 2 [ set elevation ( train-ymin + 4 ) / train-ymax ]
+        if pycor = train-ymin + 1 [ set elevation ( train-ymin + 5 ) / train-ymax ]
+        ]
+        
+      if pycor <= train-ymax - 1 and pycor >= train-ymax - 2 and 
+        ( pxcor = 1 or pxcor = 3 or pxcor = 8 or pxcor = 10 or  pxcor = 15 or pxcor = 17 or pxcor = 22 or pxcor = 24 or pxcor = 29 or pxcor = 31 )
+        [ set pcolor train-seat-color ]
+      ]
+      
+    ; ----------------------
+    ; Change the elevation in the center between doors so people do not get stuck by seats :
+    if pycor >= train-ymin
+      [
+      if ( pxcor > 0  and pxcor < 5 )  [ set elevation elevation - 0.01 * pxcor /  5 ]
+      if ( pxcor > 9  and pxcor < 12 ) [ set elevation elevation - 0.01 * pxcor / 12 ]
+      if ( pxcor > 16 and pxcor < 19 ) [ set elevation elevation - 0.01 * pxcor / 19 ]
+      if ( pxcor > 23 and pxcor < 26 ) [ set elevation elevation - 0.01 * pxcor / 26 ]
+        
+      if ( pxcor > 7  and pxcor < 10 ) [ set elevation elevation + 0.01 * pxcor / 10 ]
+      if ( pxcor > 14 and pxcor < 17 ) [ set elevation elevation + 0.01 * pxcor / 17 ]
+      if ( pxcor > 21 and pxcor < 24 ) [ set elevation elevation + 0.01 * pxcor / 24 ]
+      if ( pxcor > 28 and pxcor < 33 ) [ set elevation elevation + 0.01 * pxcor / 33 ]
+      ]
+      
+    ; -----------------------------------------------------------------------------      
+    ; Define the train patches:
+    if ( pcolor = train-seat-color ) or ( pcolor = train-color )
+      [ set train? True ]
+      
+    ; passengens can not go true edges. Set elevation to False:
+    if ( pcolor = train-edge-color ) or ( pycor = train-ymax )
+      [ set elevation False ]
+      
+    ; Display the elevation using the GUI switch:
+    if show-elevation and ( pcolor = train-color or pcolor = train-seat-color )
+      [ set pcolor ( 10 * elevation ) ]
+      
+  ]
+end
+    

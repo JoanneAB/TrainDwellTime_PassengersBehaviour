@@ -1,0 +1,110 @@
+to setup-passengers-globals
+  set number-alighting number-passengers - partition-boarding
+  
+  set passenger-alighting-color 54 ; dark green
+  set passenger-boarding-color-good 96 ; light blue
+  set passenger-boarding-color-bad 126 ; bordeaux
+end
+
+; -----------------------------------------------------------------------------
+to create-passengers
+  set-default-shape people-boarding "person"
+  set-default-shape people-alighting "person"
+  
+  create-boarding  ; create and locate the boarding passengers in the platform 
+  create-alighting ; create the alighting passengers
+end
+
+; -----------------------------------------------------------------------------
+; -----------------------------------------------------------------------------
+; -----------------------------------------------------------------------------
+to create-alighting
+  create-people-alighting number-alighting
+    [
+    if any? people-alighting-here
+      [ move-to one-of patches with [ train? = True and not any? people-alighting-here ] ]
+          
+    set pen-mode "up"
+    if show-pen [ set pen-mode "down" ]
+    
+    set color passenger-alighting-color
+    set heading 180 ; move down
+    set finished? False
+    set outside? False ; is this passenger outside of the train ?
+;    print ( word "x, y , train?: " xcor " " ycor " " train? )
+    ]
+end
+
+; -----------------------------------------------------------------------------
+to create-boarding 
+  let waiting-area patches with [ waiting-line-distribution >= boarding-in-lines ] 
+  if partition-boarding > count waiting-area [ error "Box can not hold all turtles !" ]
+  
+  ; -----------------------------------------------------------------------------
+  ; Normal distribution of passengers (Stack Overflow 25136161)
+  let ys [ pycor ] of waiting-area
+  let min-y min ys
+  let max-y max ys
+  let h max-y - min-y
+  
+  create-people-boarding partition-boarding 
+    [    
+    ; Standard behaviour is good :
+    set color passenger-boarding-color-good
+    set behaviour "good"
+      
+    set heading 0      ; move up      
+    set finished? False
+
+    ; Place a passenger in the correct waiting-line distribution :
+    move-to one-of patches with  [ waiting-line-distribution >= boarding-in-lines ] 
+        
+    ; For each passenger, add a normal distribution with maximum probability close to the train :
+    loop 
+      [                
+      let y random-normal max-y (h / 6)
+      if y > max-y [ set y max-y ]
+      if y < min-y [ set y min-y ]
+      set ycor y
+      if not any? other people-boarding-here [ stop ]  
+      ]
+    move-to patch-here ; to center in patch
+    ]
+
+  ask people-boarding
+    [
+    set inside? False
+    set pen-mode "up"
+    if show-pen [ set pen-mode "down" ]
+    ]
+    
+  set-boarding-behaviour ; set the boarding-behaviour of each boarding passenger
+end
+
+; -----------------------------------------------------------------------------
+to set-boarding-behaviour
+  ; Set the behaviour of the boarding passenger :
+  ;  good  : wait for no more alighting passengers in train
+  ;  mixed : mixed distribution
+  ;  bad   : board the train as soon as start
+  
+  if boarding-behaviour = "mixed"
+    [
+    ; Select random half persons with good behaviour and other half with bad behaviour:
+    let my-agentset n-of ( partition-boarding / 2 ) people-boarding
+    ask my-agentset 
+      [
+      set behaviour "bad" 
+      set color passenger-boarding-color-bad
+      ]
+    ]
+
+  if boarding-behaviour = "bad"
+    [
+    ask people-boarding 
+      [
+      set color passenger-boarding-color-bad
+      set behaviour "bad"
+      ]
+    ]
+end

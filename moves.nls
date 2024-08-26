@@ -1,0 +1,76 @@
+; -----------------------------------------------------------------------------
+; -----------------------------------------------------------------------------
+to move-alighting
+  ask people-alighting with [ not finished? ]
+    [    
+    downhill elevation
+    
+    ; When out of the train:
+    if not train?
+      [ set outside? True ]
+    
+    ; when walked on the platform for the same thickness of the train, finished:
+    if pycor <= 2 * train-ymin - train-ymax
+      [
+      set finished? True 
+      hide-turtle
+      ]
+    ]
+  
+  ; -----------------------------------------------------------------------------
+  ; Count the time needed for all alighting passengers to get out of the train:
+  if not all?  people-alighting [ outside? ]
+    [ set counter-alighting-outside ticks ]
+    
+  ; Count the time needed for all alighting passengers to finished:
+  if not all?  people-alighting [ finished? ]
+    [ set counter-alighting-finished ticks ]
+end
+
+; -----------------------------------------------------------------------------
+; -----------------------------------------------------------------------------
+to move-boarding 
+  ; The peoples that can move are the ones that are :
+  ; - not arrived in the train yet
+  ; - bad behaved and go to the train from the start
+  ; - good behaved if all the alighting passengers are out of the train.
+  ask people-boarding with [ not finished? and ( behaviour = "bad" or ( behaviour = "good" and all? people-alighting [ outside? ] ) ) ]
+    [
+    ; search for neighbors with a valid elevation ( exclude the train edges, occupied patches) :
+    let _candidates neighbors with [ elevation != False  and not any? turtles-here ]
+    let p max-one-of _candidates [ elevation ]
+      
+;    print ( word "--- " ( who ) " " pxcor " " pycor ) 
+      
+    ifelse ( p != nobody ) and ( [elevation] of p > elevation ) ; if there is somewhere to go:
+      [
+      face p
+      move-to p
+      if train? 
+        [ set inside? True ]
+      ]
+      [
+      ; Nowhere to go but I'm on the train, so OK:
+      if ( train? )
+        [
+        set elevation False
+        set finished? True
+        set inside? True
+        ]
+      ] 
+    ]
+    
+  ; -----------------------------------------------------------------------------
+  ; Count the time needed for all boarding passengers to go in the train :
+  if not all? people-boarding [ inside? ]
+    [ set counter-boarding-inside ticks ]
+      
+  ; Count the time needed for all boarding passengers to go in the train and finished :
+  if not all? people-boarding [ finished? ]
+    [ set counter-boarding-finished ticks ]
+end
+
+
+; -----------------------------------------------------------------------------
+
+  
